@@ -2,6 +2,7 @@
 Configuración de la aplicación FreshKeep
 Similar a settings.py en Django
 """
+import os
 from pydantic_settings import BaseSettings
 from typing import Optional
 
