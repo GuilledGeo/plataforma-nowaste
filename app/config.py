@@ -1,6 +1,5 @@
 """
 Configuración de la aplicación FreshKeep
-Similar a settings.py en Django
 """
 import os
 from pydantic_settings import BaseSettings
@@ -12,23 +11,35 @@ class Settings(BaseSettings):
     
     # Información de la App
     APP_NAME: str = "FreshKeep"
-    DEBUG: bool = True
+    DEBUG: bool = os.getenv("DEBUG", "False") == "True"
     VERSION: str = "1.0.0"
     
-    # Base de Datos
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./freshkeep.db")    
+    # Base de Datos - Automáticamente usa PostgreSQL en producción
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./freshkeep.db")
+    
+    # Si es PostgreSQL de Render, ajustar el esquema
+    @property
+    def database_url_fixed(self):
+        url = self.DATABASE_URL
+        if url and url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return url
+    
     # Seguridad - JWT
-    SECRET_KEY: str = "your-secret-key-here-change-in-production"
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # API Keys
-    ANTHROPIC_API_KEY: Optional[str] = None
+    ANTHROPIC_API_KEY: Optional[str] = os.getenv("ANTHROPIC_API_KEY")
     
     # CORS
     ALLOWED_ORIGINS: list = [
         "http://localhost:3000",
         "http://localhost:8000",
+        "https://*.netlify.app",
+        "https://*.vercel.app",
+        "*"  # En producción, especifica tu dominio
     ]
     
     class Config:
