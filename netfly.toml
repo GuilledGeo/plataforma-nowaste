@@ -1,0 +1,13 @@
+[build]
+  # Directorio base donde está el frontend
+  base = "frontend"
+  
+  # NO ejecutar ningún comando de build
+  command = ""
+  
+  # Publicar todos los archivos de la carpeta frontend
+  publish = "."
+
+# Configuración para evitar que Netlify intente instalar Python
+[build.environment]
+  NODE_VERSION = "18"
