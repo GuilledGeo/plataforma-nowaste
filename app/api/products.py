@@ -1,6 +1,6 @@
 """
-API Endpoints de Productos
-Aquí defines las rutas para crear, leer, actualizar y eliminar productos
+API Endpoints de Productos - Protegido por usuario
+Cada usuario solo ve y maneja sus propios productos
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -9,28 +9,26 @@ from datetime import datetime, timedelta
 
 from app.database import get_db
 from app.models.product import Product, ProductStatus
+from app.models.user import User
 from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse, ProductList
+from app.utils.auth import get_current_user
 
-# Crear el router (como un "mini app" de FastAPI)
+# Crear el router
 router = APIRouter()
 
 
 @router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
-@router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
-
-
 def create_product(
     product: ProductCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Crear un nuevo producto en el inventario
+    Crear un nuevo producto en el inventario del usuario autenticado
     """
-    user_id = 1
-    
-    # Crear el producto
+    # Crear el producto con el ID del usuario autenticado
     db_product = Product(
-        user_id=user_id,
+        user_id=current_user.id,  # Usar ID del usuario autenticado
         name=product.name,
         category=product.category,
         store=product.store,
@@ -38,9 +36,9 @@ def create_product(
         expiration_date=product.expiration_date,
         quantity=product.quantity,
         unit=product.unit,
-        price=product.price,  # NUEVO
-        is_opened=1 if product.is_opened else 0,  # NUEVO
-        opened_date=product.opened_date,  # NUEVO
+        price=product.price,
+        is_opened=1 if product.is_opened else 0,
+        opened_date=product.opened_date,
         location=product.location,
         notes=product.notes,
         status=ProductStatus.ACTIVE
@@ -52,35 +50,31 @@ def create_product(
     
     return db_product
 
+
 @router.get("/", response_model=List[ProductList])
 def list_products(
     skip: int = 0,
     limit: int = 100,
     status_filter: str = "active",
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Listar todos los productos
-    
-    - skip: Número de productos a saltar (paginación)
-    - limit: Número máximo de productos a devolver
-    - status_filter: Filtrar por estado (active, consumed, expired, all)
+    Listar productos del usuario autenticado
     """
-    # Por ahora user_id = 1
-    user_id = 1
-    
-    query = db.query(Product).filter(Product.user_id == user_id)
+    # Filtrar por usuario autenticado
+    query = db.query(Product).filter(Product.user_id == current_user.id)
     
     # Filtrar por estado
     if status_filter != "all":
         query = query.filter(Product.status == status_filter)
     
-    # Ordenar por fecha de caducidad (los que caducan antes primero)
+    # Ordenar por fecha de caducidad
     query = query.order_by(Product.expiration_date)
     
     products = query.offset(skip).limit(limit).all()
     
-    # Calcular días hasta caducidad para cada producto
+    # Calcular días hasta caducidad
     result = []
     for product in products:
         product_dict = ProductList.model_validate(product)
@@ -92,21 +86,17 @@ def list_products(
 
 @router.get("/expiring-soon", response_model=List[ProductList])
 def get_expiring_soon(
-    days: int = 3,
-    db: Session = Depends(get_db)
+    days: int = 7,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Obtener productos que caducan pronto
-    
-    - days: Número de días (por defecto 3)
-    
-    Devuelve productos que caducan en los próximos X días
+    Obtener productos del usuario que caducan pronto
     """
-    user_id = 1
     cutoff_date = datetime.utcnow() + timedelta(days=days)
     
     products = db.query(Product).filter(
-        Product.user_id == user_id,
+        Product.user_id == current_user.id,  # Solo del usuario autenticado
         Product.status == ProductStatus.ACTIVE,
         Product.expiration_date <= cutoff_date,
         Product.expiration_date >= datetime.utcnow()
@@ -124,16 +114,15 @@ def get_expiring_soon(
 @router.get("/{product_id}", response_model=ProductResponse)
 def get_product(
     product_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Obtener un producto específico por ID
+    Obtener un producto específico (solo si pertenece al usuario)
     """
-    user_id = 1
-    
     product = db.query(Product).filter(
         Product.id == product_id,
-        Product.user_id == user_id
+        Product.user_id == current_user.id  # Verificar que sea del usuario
     ).first()
     
     if not product:
@@ -142,8 +131,6 @@ def get_product(
             detail=f"Producto con ID {product_id} no encontrado"
         )
     
-    # Calcular propiedades
-
     return product
 
 
@@ -151,19 +138,15 @@ def get_product(
 def update_product(
     product_id: int,
     product_update: ProductUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Actualizar un producto existente
-    
-    Solo envía los campos que quieras cambiar
-    Ejemplo: {"quantity": 200, "notes": "Quedan 200g"}
+    Actualizar un producto (solo si pertenece al usuario)
     """
-    user_id = 1
-    
     db_product = db.query(Product).filter(
         Product.id == product_id,
-        Product.user_id == user_id
+        Product.user_id == current_user.id  # Verificar que sea del usuario
     ).first()
     
     if not db_product:
@@ -172,7 +155,7 @@ def update_product(
             detail=f"Producto con ID {product_id} no encontrado"
         )
     
-    # Actualizar solo los campos que se enviaron
+    # Actualizar solo los campos enviados
     update_data = product_update.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(db_product, field, value)
@@ -181,23 +164,21 @@ def update_product(
     db.commit()
     db.refresh(db_product)
     
-    
     return db_product
 
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(
     product_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Eliminar un producto del inventario
+    Eliminar un producto (solo si pertenece al usuario)
     """
-    user_id = 1
-    
     db_product = db.query(Product).filter(
         Product.id == product_id,
-        Product.user_id == user_id
+        Product.user_id == current_user.id  # Verificar que sea del usuario
     ).first()
     
     if not db_product:
@@ -215,16 +196,15 @@ def delete_product(
 @router.post("/{product_id}/mark-consumed", response_model=ProductResponse)
 def mark_as_consumed(
     product_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Marcar un producto como consumido
+    Marcar un producto como consumido (solo si pertenece al usuario)
     """
-    user_id = 1
-    
     db_product = db.query(Product).filter(
         Product.id == product_id,
-        Product.user_id == user_id
+        Product.user_id == current_user.id  # Verificar que sea del usuario
     ).first()
     
     if not db_product:

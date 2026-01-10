@@ -489,9 +489,28 @@
             }
         }
 
+        // Manejar errores de autenticación
+        async function handleAuthError(response) {
+            if (response.status === 401) {
+                alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
+                localStorage.removeItem('freshkeep_token');
+                localStorage.removeItem('freshkeep_user');
+                window.location.href = 'login.html';
+                return true;
+            }
+            return false;
+        }
+
         async function loadProducts() {
             try {
-                const response = await fetch(`${API_URL}/products/`);
+                const response = await fetch(`${API_URL}/products/`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (await handleAuthError(response)) return;
+                
                 if (!response.ok) throw new Error('Error al cargar productos');
                 
                 allProducts = await response.json();
@@ -501,7 +520,8 @@
                 console.error('Error:', error);
                 document.getElementById('productsList').innerHTML = `
                     <div class="empty-state">
-                        <p>❌ Error al cargar productos. Asegúrate de que el servidor está corriendo.</p>
+                        <p>❌ Error al cargar productos.</p>
+                        <p>${error.message}</p>
                     </div>
                 `;
             }
@@ -619,9 +639,14 @@
             try {
                 const response = await fetch(`${API_URL}/products/`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
                     body: JSON.stringify(data)
                 });
+
+                if (await handleAuthError(response)) return;
 
                 if (!response.ok) throw new Error('Error al crear producto');
 
@@ -639,8 +664,13 @@
 
             try {
                 const response = await fetch(`${API_URL}/products/${id}/mark-consumed`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
                 });
+
+                if (await handleAuthError(response)) return;
 
                 if (!response.ok) throw new Error('Error al marcar como consumido');
 
@@ -657,8 +687,13 @@
 
             try {
                 const response = await fetch(`${API_URL}/products/${id}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
                 });
+
+                if (await handleAuthError(response)) return;
 
                 if (!response.ok) throw new Error('Error al eliminar producto');
 
