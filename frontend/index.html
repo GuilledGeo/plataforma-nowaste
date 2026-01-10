@@ -27,6 +27,7 @@
             text-align: center;
             color: white;
             margin-bottom: 30px;
+            position: relative;
         }
 
         .header h1 {
@@ -38,6 +39,26 @@
         .header p {
             font-size: 1.2em;
             opacity: 0.9;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
         }
 
         .content {
@@ -279,6 +300,12 @@
             .stats {
                 grid-template-columns: 1fr;
             }
+
+            .logout-btn {
+                position: static;
+                margin-top: 10px;
+                display: inline-block;
+            }
         }
     </style>
 </head>
@@ -286,7 +313,8 @@
     <div class="container">
         <div class="header">
             <h1>🥗 FreshKeep</h1>
-            <p>Gestiona tu inventario y evita desperdicios</p>
+            <p id="welcomeMessage">Gestiona tu inventario y evita desperdicios</p>
+            <button onclick="logout()" class="logout-btn">🚪 Cerrar Sesión</button>
         </div>
 
         <div class="stats">
@@ -415,8 +443,26 @@
         const API_URL = 'https://plataforma-nowaste.onrender.com/api';
         let allProducts = [];
         let currentFilter = 'all';
+        let currentUser = null;
+        let authToken = null;
 
+        // Verificar autenticación al cargar
         document.addEventListener('DOMContentLoaded', () => {
+            authToken = localStorage.getItem('freshkeep_token');
+            const userDataString = localStorage.getItem('freshkeep_user');
+            
+            if (!authToken || !userDataString) {
+                // No está logueado, redirigir a login
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            currentUser = JSON.parse(userDataString);
+            
+            // Mostrar nombre del usuario
+            document.getElementById('welcomeMessage').textContent = `Bienvenido, ${currentUser.full_name} 👋`;
+            
+            // Continuar con la carga normal
             loadProducts();
             setMinDate();
             setupOpenedDateListener();
@@ -636,6 +682,15 @@
                 'freezer': 'Congelador'
             };
             return names[location] || location;
+        }
+
+        // Función de logout
+        function logout() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                localStorage.removeItem('freshkeep_token');
+                localStorage.removeItem('freshkeep_user');
+                window.location.href = 'login.html';
+            }
         }
     </script>
 </body>
