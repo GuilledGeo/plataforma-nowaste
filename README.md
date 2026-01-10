@@ -156,7 +156,9 @@ sqlite3 freshkeep.db
 
 
 # (3) Activar env en portatil
+cd .\freshkeep-backend 
 & "C:\0_Proyectos\1_nowaste\freshkeep-backend\venv\Scripts\Activate.ps1"
 
 # (3) Activar env en torre
+cd .\freshkeep-backend 
 & "E:\0_Proyectos\1_nowaste\freshkeep-backend\venv\Scripts\Activate.ps1"
