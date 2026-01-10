@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     # Seguridad - JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 🔥 7 días en lugar de 30 minutos
     
     # API Keys
     ANTHROPIC_API_KEY: Optional[str] = os.getenv("ANTHROPIC_API_KEY")
@@ -39,7 +39,8 @@ class Settings(BaseSettings):
         "http://localhost:8000",
         "https://*.netlify.app",
         "https://*.vercel.app",
-        "*"  # En producción, especifica tu dominio
+        "https://plataforma-nowaste.onrender.com",  # 🔥 Añade tu dominio
+        "*"  # En producción, quita esto y deja solo dominios específicos
     ]
     
     class Config:
