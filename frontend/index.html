@@ -462,13 +462,8 @@
             // Mostrar nombre del usuario
             document.getElementById('welcomeMessage').textContent = `Bienvenido, ${currentUser.full_name} 👋`;
             
-            // NO cargar productos automáticamente
-            document.getElementById('productsList').innerHTML = `
-                <div class="empty-state">
-                    <p>👋 ¡Hola! Haz clic en "Actualizar Lista" para cargar tus productos</p>
-                </div>
-            `;
-            
+            // Cargar productos automáticamente
+            loadProducts();
             setMinDate();
             setupOpenedDateListener();
         });
