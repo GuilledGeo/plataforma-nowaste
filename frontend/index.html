@@ -453,7 +453,7 @@
             
             if (!authToken || !userDataString) {
                 // No está logueado, redirigir a login
-                window.location.href = 'login.html';
+                window.location.replace('login.html');
                 return;
             }
             
@@ -462,8 +462,13 @@
             // Mostrar nombre del usuario
             document.getElementById('welcomeMessage').textContent = `Bienvenido, ${currentUser.full_name} 👋`;
             
-            // Continuar con la carga normal
-            loadProducts();
+            // NO cargar productos automáticamente
+            document.getElementById('productsList').innerHTML = `
+                <div class="empty-state">
+                    <p>👋 ¡Hola! Haz clic en "Actualizar Lista" para cargar tus productos</p>
+                </div>
+            `;
+            
             setMinDate();
             setupOpenedDateListener();
         });
@@ -492,10 +497,9 @@
         // Manejar errores de autenticación
         async function handleAuthError(response) {
             if (response.status === 401) {
-                alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
                 localStorage.removeItem('freshkeep_token');
                 localStorage.removeItem('freshkeep_user');
-                window.location.href = 'login.html';
+                window.location.replace('login.html');
                 return true;
             }
             return false;
