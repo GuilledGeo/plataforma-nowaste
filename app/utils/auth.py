@@ -42,22 +42,15 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     )
     return encoded_jwt
 
-# 🔥 NUEVA VERSIÓN - Usar Header en lugar de HTTPBearer
 def get_current_user(
     authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ) -> User:
     """
     Obtener usuario actual desde el token JWT
-    Usa Header en lugar de HTTPBearer para evitar problemas de CORS/403
     """
     
-    print("=" * 60)
-    print("🚀 get_current_user ejecutándose")
-    print(f"📥 Authorization header: {authorization[:50] if authorization else 'None'}...")
-    
     if not authorization:
-        print("❌ No hay Authorization header")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No se proporcionó token de autenticación",
@@ -68,22 +61,17 @@ def get_current_user(
     try:
         scheme, token = authorization.split()
         if scheme.lower() != 'bearer':
-            print(f"❌ Scheme incorrecto: {scheme}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Esquema de autenticación inválido",
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except ValueError:
-        print("❌ Formato de Authorization header inválido")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Formato de token inválido",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    print(f"🔑 Token extraído: {token[:30]}...")
-    print(f"🔐 SECRET_KEY: {settings.SECRET_KEY[:20]}...")
     
     try:
         payload = jwt.decode(
@@ -91,18 +79,26 @@ def get_current_user(
             settings.SECRET_KEY, 
             algorithms=[settings.ALGORITHM]
         )
-        user_id: int = payload.get("sub")
-        print(f"✅ Token decodificado. User ID: {user_id}")
         
-        if user_id is None:
-            print("❌ User ID es None en el payload")
+        # IMPORTANTE: sub viene como string desde el JWT
+        user_id_str: str = payload.get("sub")
+        
+        if user_id_str is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token inválido: no contiene user ID"
             )
+        
+        # Convertir string a int
+        try:
+            user_id: int = int(user_id_str)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token inválido: user ID no es válido"
+            )
             
     except JWTError as e:
-        print(f"❌ JWTError: {type(e).__name__}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"No se pudo validar las credenciales: {str(e)}"
@@ -111,19 +107,15 @@ def get_current_user(
     user = db.query(User).filter(User.id == user_id).first()
     
     if user is None:
-        print(f"❌ Usuario con ID {user_id} NO encontrado en BD")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
         )
     
     if not user.is_active:
-        print(f"❌ Usuario {user.email} está inactivo")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Usuario inactivo"
         )
     
-    print(f"✅ Usuario autenticado exitosamente: {user.email}")
-    print("=" * 60)
     return user

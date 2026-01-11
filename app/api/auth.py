@@ -44,10 +44,10 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     
-    # Crear token
+    # Crear token - IMPORTANTE: sub debe ser string
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": new_user.id}, expires_delta=access_token_expires
+        data={"sub": str(new_user.id)}, expires_delta=access_token_expires
     )
     
     return {
@@ -77,10 +77,10 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
             detail="Usuario inactivo"
         )
     
-    # Crear token
+    # Crear token - IMPORTANTE: sub debe ser string
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.id}, expires_delta=access_token_expires
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
     )
     
     return {
