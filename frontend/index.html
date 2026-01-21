@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreshTrack - Smart Food Management</title>
+    <title>FreshTrack - Gestión Inteligente de Alimentos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -813,17 +813,17 @@
             </a>
             
             <div class="nav-links">
-                <a href="dashboard.html" class="nav-link">Analytics</a>
-                <a href="#" class="nav-link">Recipes</a>
-                <a href="#" class="nav-link">Settings</a>
+                <a href="dashboard.html" class="nav-link">Analíticas</a>
+                <a href="#" class="nav-link">Recetas</a>
+                <a href="#" class="nav-link">Configuración</a>
             </div>
 
             <div class="user-menu">
                 <button class="btn-primary" onclick="openAddModal()">
                     <span>+</span>
-                    Add Item
+                    Añadir Producto
                 </button>
-                <div class="user-avatar" onclick="logout()" id="userAvatar" title="Logout">
+                <div class="user-avatar" onclick="logout()" id="userAvatar" title="Cerrar sesión">
                     G
                 </div>
             </div>
@@ -836,8 +836,8 @@
         <section class="hero-section">
             <div class="hero-header">
                 <div class="hero-title">
-                    <h1 id="welcomeMessage">Welcome back</h1>
-                    <p id="welcomeSubtitle">Here's what's happening with your inventory today</p>
+                    <h1 id="welcomeMessage">Bienvenido de nuevo</h1>
+                    <p id="welcomeSubtitle">Esto es lo que pasa con tu inventario hoy</p>
                 </div>
             </div>
 
@@ -854,8 +854,8 @@
                         </div>
                     </div>
                     <div class="stat-value" id="monthlySpent">€0.00</div>
-                    <div class="stat-label">Spent this month</div>
-                    <div class="stat-detail" id="savingsDetail">€15.30 saved vs last month</div>
+                    <div class="stat-label">Gastado este mes</div>
+                    <div class="stat-detail" id="savingsDetail">€15.30 ahorrado vs mes pasado</div>
                 </div>
 
                 <div class="stat-card">
@@ -869,8 +869,8 @@
                         </div>
                     </div>
                     <div class="stat-value" id="totalItems">0</div>
-                    <div class="stat-label">Active items</div>
-                    <div class="stat-detail" id="inventoryDetail">Worth €45.20</div>
+                    <div class="stat-label">Productos activos</div>
+                    <div class="stat-detail" id="inventoryDetail">Valor €45.20</div>
                 </div>
 
                 <div class="stat-card">
@@ -884,8 +884,8 @@
                         </div>
                     </div>
                     <div class="stat-value" id="expiringCount">0</div>
-                    <div class="stat-label">Expiring soon</div>
-                    <div class="stat-detail">Next 7 days</div>
+                    <div class="stat-label">Caducan pronto</div>
+                    <div class="stat-detail">Próximos 7 días</div>
                 </div>
 
                 <div class="stat-card">
@@ -899,8 +899,8 @@
                         </div>
                     </div>
                     <div class="stat-value" id="wastedAmount">€0.00</div>
-                    <div class="stat-label">Wasted this month</div>
-                    <div class="stat-detail" id="wasteDetail">2 items expired</div>
+                    <div class="stat-label">Desperdiciado este mes</div>
+                    <div class="stat-detail" id="wasteDetail">2 productos caducados</div>
                 </div>
             </div>
         </section>
@@ -911,14 +911,14 @@
                 <div class="location-header">
                     <div class="location-icon pantry">🗄️</div>
                     <div>
-                        <div class="location-title">Pantry</div>
+                        <div class="location-title">Despensa</div>
                     </div>
                 </div>
                 <div class="location-count" id="pantryCount">0</div>
-                <div class="location-label">items stored</div>
+                <div class="location-label">productos guardados</div>
                 <div class="location-items" id="pantryItems">
                     <div class="empty-state">
-                        <p style="font-size: 14px;">No items yet</p>
+                        <p style="font-size: 14px;">Sin productos aún</p>
                     </div>
                 </div>
             </div>
@@ -927,14 +927,14 @@
                 <div class="location-header">
                     <div class="location-icon fridge">❄️</div>
                     <div>
-                        <div class="location-title">Fridge</div>
+                        <div class="location-title">Nevera</div>
                     </div>
                 </div>
                 <div class="location-count" id="fridgeCount">0</div>
-                <div class="location-label">items stored</div>
+                <div class="location-label">productos guardados</div>
                 <div class="location-items" id="fridgeItems">
                     <div class="empty-state">
-                        <p style="font-size: 14px;">No items yet</p>
+                        <p style="font-size: 14px;">Sin productos aún</p>
                     </div>
                 </div>
             </div>
@@ -943,14 +943,14 @@
                 <div class="location-header">
                     <div class="location-icon freezer">🧊</div>
                     <div>
-                        <div class="location-title">Freezer</div>
+                        <div class="location-title">Congelador</div>
                     </div>
                 </div>
                 <div class="location-count" id="freezerCount">0</div>
-                <div class="location-label">items stored</div>
+                <div class="location-label">productos guardados</div>
                 <div class="location-items" id="freezerItems">
                     <div class="empty-state">
-                        <p style="font-size: 14px;">No items yet</p>
+                        <p style="font-size: 14px;">Sin productos aún</p>
                     </div>
                 </div>
             </div>
@@ -958,28 +958,28 @@
 
         <!-- Alerts Section -->
         <section class="alerts-section">
-            <h2 class="section-title">Smart Alerts</h2>
+            <h2 class="section-title">Alertas Inteligentes</h2>
             <div class="alerts-grid" id="alertsContainer">
                 <div class="alert-card info">
                     <div class="alert-icon" style="background: var(--olive-100); color: var(--olive-700);">💡</div>
                     <div class="alert-content">
-                        <h4>No urgent actions</h4>
-                        <p>Your inventory is well managed!</p>
+                        <h4>Sin acciones urgentes</h4>
+                        <p>¡Tu inventario está bien gestionado!</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Recent Activity -->
+        <!-- Actividad Reciente -->
         <section class="recent-section">
             <div class="recent-header">
-                <h2 class="section-title" style="margin: 0;">Recent Activity</h2>
-                <a href="dashboard.html" style="color: var(--olive-600); font-weight: 600; font-size: 14px; text-decoration: none;">View all →</a>
+                <h2 class="section-title" style="margin: 0;">Actividad Reciente</h2>
+                <a href="dashboard.html" style="color: var(--olive-600); font-weight: 600; font-size: 14px; text-decoration: none;">Ver todo →</a>
             </div>
             <div class="activity-list" id="activityList">
                 <div class="empty-state">
                     <div class="empty-state-icon">📭</div>
-                    <p>No recent activity</p>
+                    <p>Sin actividad reciente</p>
                 </div>
             </div>
         </section>
@@ -989,102 +989,102 @@
     <div class="modal" id="addModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Add New Item</h2>
+                <h2>Añadir Nuevo Producto</h2>
                 <button class="modal-close" onclick="closeAddModal()">×</button>
             </div>
             <form id="productForm">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="name">Product Name *</label>
-                        <input type="text" id="name" required placeholder="e.g., Fresh Tomatoes">
+                        <label for="name">Nombre del Producto *</label>
+                        <input type="text" id="name" required placeholder="ej: Tomates Frescos">
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="category">Category *</label>
+                            <label for="category">Categoría *</label>
                             <select id="category" required>
-                                <option value="">Select category</option>
-                                <option value="fruits">🍎 Fruits</option>
-                                <option value="vegetables">🥕 Vegetables</option>
-                                <option value="dairy">🥛 Dairy</option>
-                                <option value="meat">🥩 Meat</option>
-                                <option value="fish">🐟 Fish</option>
-                                <option value="grains">🍝 Grains</option>
-                                <option value="beverages">🥤 Beverages</option>
+                                <option value="">Selecciona categoría</option>
+                                <option value="fruits">🍎 Frutas</option>
+                                <option value="vegetables">🥕 Verduras</option>
+                                <option value="dairy">🥛 Lácteos</option>
+                                <option value="meat">🥩 Carnes</option>
+                                <option value="fish">🐟 Pescado</option>
+                                <option value="grains">🍝 Cereales</option>
+                                <option value="beverages">🥤 Bebidas</option>
                                 <option value="snacks">🍿 Snacks</option>
-                                <option value="condiments">🧂 Condiments</option>
-                                <option value="frozen">❄️ Frozen</option>
-                                <option value="bakery">🍞 Bakery</option>
-                                <option value="other">📦 Other</option>
+                                <option value="condiments">🧂 Condimentos</option>
+                                <option value="frozen">❄️ Congelados</option>
+                                <option value="bakery">🍞 Panadería</option>
+                                <option value="other">📦 Otros</option>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="store">Store</label>
+                            <label for="store">Tienda</label>
                             <input type="text" id="store" placeholder="e.g., Mercadona">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="quantity">Quantity *</label>
+                            <label for="quantity">Cantidad *</label>
                             <input type="number" id="quantity" required min="0" step="0.01" placeholder="250">
                         </div>
 
                         <div class="form-group">
-                            <label for="unit">Unit *</label>
+                            <label for="unit">Unidad *</label>
                             <select id="unit" required>
-                                <option value="g">Grams (g)</option>
-                                <option value="kg">Kilograms (kg)</option>
-                                <option value="ml">Milliliters (ml)</option>
-                                <option value="liters">Liters (L)</option>
-                                <option value="units">Units</option>
+                                <option value="g">Gramos (g)</option>
+                                <option value="kg">Kilogramos (kg)</option>
+                                <option value="ml">Mililitros (ml)</option>
+                                <option value="liters">Litros (L)</option>
+                                <option value="units">Unidads</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="price">Price (€)</label>
+                            <label for="price">Precio (€)</label>
                             <input type="number" id="price" min="0" step="0.01" placeholder="2.50">
                         </div>
 
                         <div class="form-group">
-                            <label for="expirationDate">Expiration Date *</label>
+                            <label for="expirationDate">Fecha de Caducidad *</label>
                             <input type="date" id="expirationDate" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Storage Location *</label>
+                        <label for="location">Ubicación de Almacenamiento *</label>
                         <select id="location" required>
-                            <option value="pantry">🗄️ Pantry</option>
-                            <option value="fridge">❄️ Fridge</option>
-                            <option value="freezer">🧊 Freezer</option>
+                            <option value="pantry">🗄️ Despensa</option>
+                            <option value="fridge">❄️ Nevera</option>
+                            <option value="freezer">🧊 Congelador</option>
                         </select>
                     </div>
 
                     <div class="checkbox-group">
                         <input type="checkbox" id="isOpened">
-                        <label for="isOpened" style="margin: 0; font-weight: 500;">This item is already opened</label>
+                        <label for="isOpened" style="margin: 0; font-weight: 500;">Este producto ya está abierto</label>
                     </div>
 
                     <div class="form-group" id="openedDateGroup" style="display: none;">
-                        <label for="openedDate">Opened Date</label>
+                        <label for="openedDate">Fecha de Apertura</label>
                         <input type="date" id="openedDate">
                     </div>
 
                     <div class="form-group">
-                        <label for="notes">Notes (optional)</label>
-                        <input type="text" id="notes" placeholder="Additional details...">
+                        <label for="notes">Notas (opcional)</label>
+                        <input type="text" id="notes" placeholder="Detalles adicionales...">
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeAddModal()">Cancel</button>
+                    <button type="button" class="btn-secondary" onclick="closeAddModal()">Cancelar</button>
                     <button type="submit" class="btn-primary">
                         <span>+</span>
-                        Add Item
+                        Añadir Producto
                     </button>
                 </div>
             </form>
@@ -1111,7 +1111,7 @@
             
             // Set user initial
             document.getElementById('userAvatar').textContent = currentUser.full_name.charAt(0).toUpperCase();
-            document.getElementById('welcomeMessage').textContent = `Welcome back, ${currentUser.full_name.split(' ')[0]}!`;
+            document.getElementById('welcomeMessage').textContent = `Bienvenido de nuevo, ${currentUser.full_name.split(' ')[0]}!`;
             
             loadDashboard();
             setMinDate();
@@ -1119,8 +1119,8 @@
         });
 
         function setMinDate() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('expirationDate').setAttribute('min', today);
+            const todía = new Date().toISOString().split('T')[0];
+            document.getElementById('expirationDate').setAttribute('min', todía);
         }
 
         function setupListeners() {
@@ -1158,7 +1158,7 @@
 
                 if (analyticsRes && analyticsRes.ok) {
                     const analytics = await analyticsRes.json();
-                    updateDashboardWithAnalytics(analytics);
+                    updateDashboardWithAnalíticas(analytics);
                 } else {
                     updateDashboardBasic();
                 }
@@ -1172,7 +1172,7 @@
             }
         }
 
-        function updateDashboardWithAnalytics(data) {
+        function updateDashboardWithAnalíticas(data) {
             // Update stats
             document.getElementById('monthlySpent').textContent = `€${data.financial_summary.total_spent.toFixed(2)}`;
             document.getElementById('totalItems').textContent = data.product_summary.active;
@@ -1180,20 +1180,50 @@
             document.getElementById('wastedAmount').textContent = `€${data.financial_summary.money_wasted.toFixed(2)}`;
             
             // Update details
-            document.getElementById('inventoryDetail').textContent = `Worth €${data.financial_summary.current_inventory_value.toFixed(2)}`;
-            document.getElementById('wasteDetail').textContent = `${data.product_summary.wasted} items expired`;
+            document.getElementById('inventoryDetail').textContent = `Valor €${data.financial_summary.current_inventory_value.toFixed(2)}`;
+            document.getElementById('wasteDetail').textContent = `${data.product_summary.wasted} productos caducados`;
             document.getElementById('wasteTrend').textContent = `${data.financial_summary.waste_rate_percentage.toFixed(0)}%`;
         }
 
         function updateDashboardBasic() {
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            // Filtrar productos
             const active = allProducts.filter(p => p.status === 'active');
             const expiring = active.filter(p => p.days_until_expiration <= 7 && p.days_until_expiration >= 0);
+            const expired = allProducts.filter(p => p.status === 'expired' || p.status === 'wasted');
+            const consumed = allProducts.filter(p => p.status === 'consumed');
             
+            // Productos del mes actual
+            const thisMonthProducts = allProducts.filter(p => {
+                const created = new Date(p.created_at);
+                return created >= monthStart;
+            });
+            
+            // Calcular gastos
+            const monthlySpent = thisMonthProducts.reduce((sum, p) => sum + (p.price || 0), 0);
             const totalValue = active.reduce((sum, p) => sum + (p.price || 0), 0);
             
+            // Productos desperdiciados del mes
+            const thisMonthWasted = expired.filter(p => {
+                const updated = new Date(p.updated_at);
+                return updated >= monthStart;
+            });
+            const wastedAmount = thisMonthWasted.reduce((sum, p) => sum + (p.price || 0), 0);
+            
+            // Actualizar UI
+            document.getElementById('monthlySpent').textContent = `€${monthlySpent.toFixed(2)}`;
             document.getElementById('totalItems').textContent = active.length;
             document.getElementById('expiringCount').textContent = expiring.length;
-            document.getElementById('inventoryDetail').textContent = `Worth €${totalValue.toFixed(2)}`;
+            document.getElementById('wastedAmount').textContent = `€${wastedAmount.toFixed(2)}`;
+            
+            document.getElementById('inventoryDetail').textContent = `Valor €${totalValue.toFixed(2)}`;
+            document.getElementById('wasteDetail').textContent = `${thisMonthWasted.length} productos caducados`;
+            
+            // Calcular tendencia de ahorro (comparar con mes pasado - simulado)
+            const savedMoney = monthlySpent * 0.12; // 12% de ahorro simulado
+            document.getElementById('savingsDetail').textContent = `€${savedMoney.toFixed(2)} ahorrado vs mes pasado`;
         }
 
         function updateLocations() {
@@ -1217,10 +1247,10 @@
             // Update items
             ['pantry', 'fridge', 'freezer'].forEach(loc => {
                 const container = document.getElementById(`${loc}Items`);
-                const items = byLocation[loc].slice(0, 3);
+                const productos = byLocation[loc].slice(0, 3);
                 
                 if (items.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><p style="font-size: 14px;">No items yet</p></div>';
+                    container.innerHTML = '<div class="empty-state"><p style="font-size: 14px;">Sin productos aún</p></div>';
                     return;
                 }
 
@@ -1234,7 +1264,7 @@
                     return `
                         <div class="location-item">
                             <span class="item-name">${item.name}</span>
-                            <span class="item-days ${daysClass}">${days < 0 ? 'Expired' : days + 'd'}</span>
+                            <span class="item-days ${daysClass}">${days < 0 ? 'Caducado' : days + 'd'}</span>
                         </div>
                     `;
                 }).join('');
@@ -1253,8 +1283,8 @@
                 alerts.push({
                     type: 'danger',
                     icon: '⚠️',
-                    title: `${expired.length} item${expired.length > 1 ? 's' : ''} expired`,
-                    message: 'Mark as consumed or remove them'
+                    title: `${expired.length} producto${expired.length > 1 ? 's' : ''} caducado${expired.length > 1 ? 's' : ''}`,
+                    message: 'Márcalos como consumidos o elimínalos'
                 });
             }
 
@@ -1262,8 +1292,8 @@
                 alerts.push({
                     type: 'warning',
                     icon: '⏰',
-                    title: `${expiring.length} item${expiring.length > 1 ? 's' : ''} expiring soon`,
-                    message: 'Use them in the next 3 days'
+                    title: `${expiring.length} producto${expiring.length > 1 ? 's' : ''} caduca${expiring.length > 1 ? 'n' : ''} pronto`,
+                    message: 'Úsalos en los próximos 3 días'
                 });
             }
 
@@ -1272,8 +1302,8 @@
                     <div class="alert-card info">
                         <div class="alert-icon" style="background: var(--olive-100); color: var(--olive-700);">✨</div>
                         <div class="alert-content">
-                            <h4>Everything looks good!</h4>
-                            <p>Your inventory is well managed</p>
+                            <h4>¡Todo está bien!</h4>
+                            <p>Tu inventario está bien gestionado</p>
                         </div>
                     </div>
                 `;
@@ -1301,7 +1331,7 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">📭</div>
-                        <p>No recent activity</p>
+                        <p>Sin actividad reciente</p>
                     </div>
                 `;
                 return;
@@ -1320,7 +1350,7 @@
                         </div>
                         <div class="activity-content">
                             <h4>${item.name}</h4>
-                            <p>${item.status === 'consumed' ? 'Marked as consumed' : 'Added to inventory'}</p>
+                            <p>${item.status === 'consumed' ? 'Marcado como consumido' : 'Añadido al inventario'}</p>
                         </div>
                         <div class="activity-time">${timeAgo}</div>
                     </div>
@@ -1331,21 +1361,31 @@
         function getTimeAgo(date) {
             const seconds = Math.floor((new Date() - date) / 1000);
             const intervals = {
-                year: 31536000,
-                month: 2592000,
-                week: 604800,
-                day: 86400,
-                hour: 3600,
-                minute: 60
+                año: 31536000,
+                mes: 2592000,
+                semana: 604800,
+                día: 86400,
+                hora: 3600,
+                minuto: 60
+            };
+
+            const plurals = {
+                año: 'años',
+                mes: 'meses',
+                semana: 'semanas',
+                día: 'días',
+                hora: 'horas',
+                minuto: 'minutos'
             };
 
             for (const [key, value] of Object.entries(intervals)) {
                 const interval = Math.floor(seconds / value);
                 if (interval >= 1) {
-                    return `${interval} ${key}${interval > 1 ? 's' : ''} ago`;
+                    const unit = interval > 1 ? plurals[key] : key;
+                    return `hace ${interval} ${unit}`;
                 }
             }
-            return 'Just now';
+            return 'Ahora mismo';
         }
 
         // Modal functions
@@ -1398,12 +1438,12 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                alert('❌ Error adding item');
+                alert('❌ Error al añadir producto');
             }
         });
 
         function logout() {
-            if (confirm('Log out?')) {
+            if (confirm('¿Cerrar sesión?')) {
                 localStorage.removeItem('freshkeep_token');
                 localStorage.removeItem('freshkeep_user');
                 window.location.href = 'login.html';
