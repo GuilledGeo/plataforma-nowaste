@@ -20,10 +20,11 @@ app = FastAPI(
 )
 
 # Configurar CORS - Permitir todos los orígenes en desarrollo
+# ✅ Configuración correcta
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=settings.ALLOWED_ORIGINS,  # Lista específica
+    allow_credentials=True,  # Necesario para JWT
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -6,7 +6,7 @@ python-multipart==0.0.20
 # Base de datos
 sqlalchemy==2.0.36
 alembic==1.14.0
-# psycopg2-binary==2.9.10  # Comentado por ahora - para PostgreSQL en producción
+# psycopg2-binary==2.9.10  # Mantener comentado si usas SQLite en local
 
 # Autenticación y Seguridad
 python-jose[cryptography]==3.3.0
@@ -32,11 +32,13 @@ pytest-asyncio==0.25.2
 email-validator==2.1.0
 bcrypt==4.1.2
 
-# OCR y procesamiento de imágenes (TODO CON PIP)
+# OCR y procesamiento de imágenes
 easyocr==1.7.2
 opencv-python-headless==4.10.0.84
 Pillow==11.0.0
 fuzzywuzzy==0.18.0
 python-Levenshtein==0.26.1
-torch==2.5.1
-torchvision==0.20.1
+
+# Deep Learning (Versiones sincronizadas con Producción)
+torch==2.6.0
+torchvision==0.21.0

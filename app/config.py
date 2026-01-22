@@ -28,19 +28,20 @@ class Settings(BaseSettings):
     # Seguridad - JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 🔥 7 días en lugar de 30 minutos
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 días
     
     # API Keys
     ANTHROPIC_API_KEY: Optional[str] = os.getenv("ANTHROPIC_API_KEY")
     
-    # CORS
+    # CORS - CONFIGURACIÓN CORREGIDA ✅
     ALLOWED_ORIGINS: list = [
         "http://localhost:3000",
         "http://localhost:8000",
-        "https://*.netlify.app",
-        "https://*.vercel.app",
-        "https://plataforma-nowaste.onrender.com",  # 🔥 Añade tu dominio
-        "*"  # En producción, quita esto y deja solo dominios específicos
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
+        "https://nowasteapp.netlify.app",  # ✅ Tu dominio de Netlify
+        "https://plataforma-nowaste.onrender.com",  # ✅ Tu backend
+        # Añade más dominios específicos aquí si despliegas en otros lugares
     ]
     
     class Config:

@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshTrack - Inventario Detallado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --olive-50: #f7f8f3;
+            --olive-100: #e8ecd9;
+            --olive-500: #7d924a;
+            --olive-600: #657a3a;
+            --olive-700: #4d5c2e;
+            
+            --gray-50: #fafafa;
+            --gray-100: #f4f4f5;
+            --gray-200: #e4e4e7;
+            --gray-300: #d4d4d8;
+            --gray-400: #a1a1aa;
+            --gray-500: #71717a;
+            --gray-600: #52525b;
+            --gray-700: #3f3f46;
+            --gray-900: #18181b;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            --pantry-color: #f59e0b;
+            --fridge-color: #3b82f6;
+            --freezer-color: #8b5cf6;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--olive-700);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--olive-500), var(--olive-600));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-link:hover {
+            color: var(--olive-700);
+            background: var(--olive-50);
+        }
+
+        .nav-link.active {
+            color: var(--olive-700);
+            background: var(--olive-50);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9dad6b, var(--olive-600));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        /* ========== MAIN ========== */
+        .main-container {
+            max-width: 1900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--gray-900);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--gray-500);
+        }
+
+        /* ========== FILTERS BAR ========== */
+        .filters-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--gray-200);
+            margin-bottom: 2rem;
+        }
+
+        .filters-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-input,
+        .filter-select {
+            padding: 10px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--olive-500);
+            box-shadow: 0 0 0 3px rgba(125, 146, 74, 0.1);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--olive-500), var(--olive-600));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+        }
+
+        /* ========== 3 COLUMN LAYOUT ========== */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .table-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* ========== TABLE CONTAINER ========== */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .table-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 3px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header.pantry {
+            border-bottom-color: var(--pantry-color);
+        }
+
+        .table-header.fridge {
+            border-bottom-color: var(--fridge-color);
+        }
+
+        .table-header.freezer {
+            border-bottom-color: var(--freezer-color);
+        }
+
+        .table-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-icon {
+            font-size: 24px;
+        }
+
+        .table-title-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .table-count {
+            font-size: 13px;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--gray-50);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 0.75rem 0.5rem;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--gray-200);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: var(--gray-100);
+        }
+
+        th.sortable::after {
+            content: ' ⇅';
+            opacity: 0.3;
+        }
+
+        th.sorted-asc::after {
+            content: ' ↑';
+            opacity: 1;
+        }
+
+        th.sorted-desc::after {
+            content: ' ↓';
+            opacity: 1;
+        }
+
+        th.checkbox-col {
+            width: 30px;
+            cursor: default;
+        }
+
+        th.checkbox-col:hover {
+            background: var(--gray-50);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--gray-100);
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        tbody tr.selected {
+            background: var(--olive-50);
+        }
+
+        td {
+            padding: 0.75rem 0.5rem;
+            font-size: 13px;
+            color: var(--gray-700);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .editable-cell {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .editable-cell:hover {
+            background: var(--gray-100);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.consumed {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .badge.wasted {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge.critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge.ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 4px;
+        }
+
+        .action-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .action-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .action-icon.consumed {
+            background: var(--success);
+            color: white;
+        }
+
+        .action-icon.expired {
+            background: var(--danger);
+            color: white;
+        }
+
+        .action-icon.move {
+            background: var(--info);
+            color: white;
+        }
+
+        .action-icon.delete {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        /* ========== CHART CARDS ========== */
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .chart-toggle {
+            display: flex;
+            gap: 0;
+            background: var(--gray-100);
+            padding: 2px;
+            border-radius: 6px;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            border: none;
+            background: transparent;
+            color: var(--gray-600);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: var(--gray-900);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+
+        /* ========== BULK ACTIONS ========== */
+        .bulk-actions {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--olive-700);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
+            display: none;
+            align-items: center;
+            gap: 2rem;
+            z-index: 1000;
+        }
+
+        .bulk-actions.active {
+            display: flex;
+        }
+
+        .bulk-info {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .bulk-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-bulk {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: white;
+            color: var(--olive-700);
+        }
+
+        .btn-bulk:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ========== EMPTY STATE ========== */
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--gray-400);
+        }
+
+        .empty-icon {
+            font-size: 36px;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* ========== LOADING ========== */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 2rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--olive-500);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .saving-indicator {
+            position: fixed;
+            top: 90px;
+            right: 2rem;
+            background: var(--olive-700);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+        }
+
+        .saving-indicator.active {
+            display: flex;
+        }
+
+        /* ========== MODAL ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1400px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">🌿</div>
+                <span>FreshTrack</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="inventory.html" class="nav-link active">Inventario</a>
+                <a href="dashboard.html" class="nav-link">Analíticas</a>
+                <a href="#" class="nav-link">Recetas</a>
+            </div>
+
+            <div class="user-menu">
+                <div class="user-avatar" onclick="logout()" id="userAvatar" title="Cerrar sesión">G</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Saving Indicator -->
+    <div class="saving-indicator" id="savingIndicator">
+        <div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
+        <span>Guardando...</span>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="color: var(--gray-600); font-weight: 500;">Cargando inventario...</p>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="display: none;">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>📦 Inventario Detallado</h1>
+                <p class="page-subtitle">Gestiona todos tus productos organizados por ubicación</p>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="filters-bar">
+                <div class="filters-title">
+                    🔍 Filtros Avanzados
+                </div>
+                
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">📅 Periodo</label>
+                        <select class="filter-select" id="filterPeriod">
+                            <option value="current">Inventario Actual</option>
+                            <option value="historical">Histórico Completo</option>
+                            <option value="last7">Últimos 7 días</option>
+                            <option value="last30">Últimos 30 días</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">📊 Estado</label>
+                        <select class="filter-select" id="filterStatus">
+                            <option value="all">Todos</option>
+                            <option value="active">Activos</option>
+                            <option value="consumed">Consumidos</option>
+                            <option value="wasted">Caducados</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">🏷️ Categoría</label>
+                        <select class="filter-select" id="filterCategory">
+                            <option value="">Todas</option>
+                            <option value="fruits">🍎 Frutas</option>
+                            <option value="vegetables">🥕 Verduras</option>
+                            <option value="dairy">🥛 Lácteos</option>
+                            <option value="meat">🥩 Carnes</option>
+                            <option value="fish">🐟 Pescado</option>
+                            <option value="grains">🍝 Cereales</option>
+                            <option value="beverages">🥤 Bebidas</option>
+                            <option value="snacks">🍿 Snacks</option>
+                            <option value="condiments">🧂 Condimentos</option>
+                            <option value="frozen">❄️ Congelados</option>
+                            <option value="bakery">🍞 Panadería</option>
+                            <option value="other">📦 Otros</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">🏪 Tienda</label>
+                        <select class="filter-select" id="filterStore">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">⚠️ Días Caducidad</label>
+                        <select class="filter-select" id="filterExpiry">
+                            <option value="all">Todos</option>
+                            <option value="expired">Caducados</option>
+                            <option value="critical">≤3 días</option>
+                            <option value="warning">≤7 días</option>
+                            <option value="ok">>7 días</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">💰 Rango Precio</label>
+                        <select class="filter-select" id="filterPrice">
+                            <option value="all">Todos</option>
+                            <option value="0-2">€0 - €2</option>
+                            <option value="2-5">€2 - €5</option>
+                            <option value="5-10">€5 - €10</option>
+                            <option value="10+">€10+</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">📦 Estado Apertura</label>
+                        <select class="filter-select" id="filterOpened">
+                            <option value="all">Todos</option>
+                            <option value="opened">Abiertos</option>
+                            <option value="closed">Cerrados</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">🔍 Buscar</label>
+                        <input type="text" class="filter-input" id="filterSearch" placeholder="Nombre...">
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="resetFilters()">
+                        <span>↻</span>
+                        Resetear
+                    </button>
+                    <button class="btn btn-primary" onclick="applyFilters()">
+                        <span>✓</span>
+                        Aplicar
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3 Tables Grid -->
+            <div class="tables-grid">
+                <!-- DESPENSA -->
+                <div class="table-column">
+                    <div class="table-container">
+                        <div class="table-header pantry">
+                            <div class="table-title">
+                                <div class="table-icon">🗄️</div>
+                                <div>
+                                    <div class="table-title-text">Mi Despensa</div>
+                                    <div class="table-count" id="pantryCount">0 productos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-col"><input type="checkbox" onchange="toggleSelectAll('pantry', this)"></th>
+                                        <th class="sortable" onclick="sortTable('pantry', 'name')">Producto</th>
+                                        <th class="sortable" onclick="sortTable('pantry', 'quantity')">Cant.</th>
+                                        <th class="sortable" onclick="sortTable('pantry', 'price')">Precio</th>
+                                        <th class="sortable" onclick="sortTable('pantry', 'expiration_date')">Caduca</th>
+                                        <th class="sortable" onclick="sortTable('pantry', 'days_until_expiration')">Días</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pantryTableBody">
+                                    <tr>
+                                        <td colspan="8">
+                                            <div class="empty-state">
+                                                <div class="empty-icon">📭</div>
+                                                <p>Sin productos</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Chart Card -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">📊 Distribución Despensa</div>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChartMode('pantry', 'items')" id="pantryToggleItems">Items</button>
+                                <button class="toggle-btn" onclick="toggleChartMode('pantry', 'value')" id="pantryToggleValue">€</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pantryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEVERA -->
+                <div class="table-column">
+                    <div class="table-container">
+                        <div class="table-header fridge">
+                            <div class="table-title">
+                                <div class="table-icon">❄️</div>
+                                <div>
+                                    <div class="table-title-text">Mi Nevera</div>
+                                    <div class="table-count" id="fridgeCount">0 productos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-col"><input type="checkbox" onchange="toggleSelectAll('fridge', this)"></th>
+                                        <th class="sortable" onclick="sortTable('fridge', 'name')">Producto</th>
+                                        <th class="sortable" onclick="sortTable('fridge', 'quantity')">Cant.</th>
+                                        <th class="sortable" onclick="sortTable('fridge', 'price')">Precio</th>
+                                        <th class="sortable" onclick="sortTable('fridge', 'expiration_date')">Caduca</th>
+                                        <th class="sortable" onclick="sortTable('fridge', 'days_until_expiration')">Días</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fridgeTableBody">
+                                    <tr>
+                                        <td colspan="8">
+                                            <div class="empty-state">
+                                                <div class="empty-icon">📭</div>
+                                                <p>Sin productos</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Chart Card -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">📊 Distribución Nevera</div>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChartMode('fridge', 'items')" id="fridgeToggleItems">Items</button>
+                                <button class="toggle-btn" onclick="toggleChartMode('fridge', 'value')" id="fridgeToggleValue">€</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="fridgeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONGELADOR -->
+                <div class="table-column">
+                    <div class="table-container">
+                        <div class="table-header freezer">
+                            <div class="table-title">
+                                <div class="table-icon">🧊</div>
+                                <div>
+                                    <div class="table-title-text">Mi Congelador</div>
+                                    <div class="table-count" id="freezerCount">0 productos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-col"><input type="checkbox" onchange="toggleSelectAll('freezer', this)"></th>
+                                        <th class="sortable" onclick="sortTable('freezer', 'name')">Producto</th>
+                                        <th class="sortable" onclick="sortTable('freezer', 'quantity')">Cant.</th>
+                                        <th class="sortable" onclick="sortTable('freezer', 'price')">Precio</th>
+                                        <th class="sortable" onclick="sortTable('freezer', 'expiration_date')">Caduca</th>
+                                        <th class="sortable" onclick="sortTable('freezer', 'days_until_expiration')">Días</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="freezerTableBody">
+                                    <tr>
+                                        <td colspan="8">
+                                            <div class="empty-state">
+                                                <div class="empty-icon">📭</div>
+                                                <p>Sin productos</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Chart Card -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">📊 Distribución Congelador</div>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChartMode('freezer', 'items')" id="freezerToggleItems">Items</button>
+                                <button class="toggle-btn" onclick="toggleChartMode('freezer', 'value')" id="freezerToggleValue">€</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="freezerChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bulk Actions -->
+    <div class="bulk-actions" id="bulkActions">
+        <div class="bulk-info">
+            <span id="bulkCount">0</span> seleccionados
+        </div>
+        <div class="bulk-buttons">
+            <button class="btn-bulk" onclick="bulkMarkConsumed()">✓ Consumidos</button>
+            <button class="btn-bulk" onclick="bulkMarkExpired()">✗ Caducados</button>
+            <button class="btn-bulk" onclick="bulkMove()">→ Mover</button>
+            <button class="btn-bulk" onclick="clearSelection()">✕ Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Move Modal -->
+    <div class="modal" id="moveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📍 Cambiar Ubicación</h3>
+            </div>
+            <div class="modal-body">
+                <div class="filter-group">
+                    <label class="filter-label">Nueva Ubicación</label>
+                    <select class="filter-select" id="newLocation">
+                        <option value="pantry">🗄️ Despensa</option>
+                        <option value="fridge">❄️ Nevera</option>
+                        <option value="freezer">🧊 Congelador</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMoveModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmMove()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://plataforma-nowaste.onrender.com/api';
+        let authToken = null;
+        let currentUser = null;
+        let allProducts = [];
+        let filteredProducts = [];
+        let selectedProducts = [];
+        let bulkMoveTargets = [];
+        let charts = {};
+        let chartModes = { pantry: 'items', fridge: 'items', freezer: 'items' };
+        let sortStates = { pantry: {}, fridge: {}, freezer: {} };
+
+        const categoryIcons = {
+            'fruits': '🍎', 'vegetables': '🥕', 'dairy': '🥛', 'meat': '🥩',
+            'fish': '🐟', 'grains': '🍝', 'beverages': '🥤', 'snacks': '🍿',
+            'condiments': '🧂', 'frozen': '❄️', 'bakery': '🍞', 'other': '📦'
+        };
+
+        const categoryNames = {
+            'fruits': 'Frutas', 'vegetables': 'Verduras', 'dairy': 'Lácteos', 'meat': 'Carnes',
+            'fish': 'Pescado', 'grains': 'Cereales', 'beverages': 'Bebidas', 'snacks': 'Snacks',
+            'condiments': 'Condimentos', 'frozen': 'Congelados', 'bakery': 'Panadería', 'other': 'Otros'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            authToken = localStorage.getItem('freshkeep_token');
+            const userDataString = localStorage.getItem('freshkeep_user');
+            
+            if (!authToken || !userDataString) {
+                window.location.replace('login.html');
+                return;
+            }
+            
+            currentUser = JSON.parse(userDataString);
+            document.getElementById('userAvatar').textContent = currentUser.full_name.charAt(0).toUpperCase();
+            
+            // Setup listeners
+            document.getElementById('filterSearch').addEventListener('input', debounce(applyFilters, 300));
+            
+            loadInventory();
+        });
+
+        async function loadInventory() {
+            try {
+                showLoading();
+
+                const response = await fetch(`${API_URL}/products/`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('freshkeep_token');
+                    localStorage.removeItem('freshkeep_user');
+                    window.location.replace('login.html');
+                    return;
+                }
+
+                if (!response.ok) throw new Error('Error al cargar productos');
+
+                allProducts = await response.json();
+                console.log('✅ Productos cargados:', allProducts.length);
+
+                populateStoreFilter();
+                applyFilters();
+                hideLoading();
+
+            } catch (error) {
+                console.error('❌ Error:', error);
+                hideLoading();
+                alert('Error al cargar inventario');
+            }
+        }
+
+        function populateStoreFilter() {
+            const storeFilter = document.getElementById('filterStore');
+            const stores = [...new Set(allProducts.map(p => p.store).filter(Boolean))];
+            
+            storeFilter.innerHTML = '<option value="">Todas</option>' +
+                stores.map(store => `<option value="${store}">${store}</option>`).join('');
+        }
+
+        function applyFilters() {
+            const period = document.getElementById('filterPeriod').value;
+            const status = document.getElementById('filterStatus').value;
+            const category = document.getElementById('filterCategory').value;
+            const store = document.getElementById('filterStore').value;
+            const expiry = document.getElementById('filterExpiry').value;
+            const price = document.getElementById('filterPrice').value;
+            const opened = document.getElementById('filterOpened').value;
+            const search = document.getElementById('filterSearch').value.toLowerCase();
+
+            let filtered = [...allProducts];
+
+            // Period
+            if (period === 'current') {
+                filtered = filtered.filter(p => p.status === 'active');
+            } else if (period === 'last7') {
+                const cutoff = new Date();
+                cutoff.setDate(cutoff.getDate() - 7);
+                filtered = filtered.filter(p => new Date(p.created_at) >= cutoff);
+            } else if (period === 'last30') {
+                const cutoff = new Date();
+                cutoff.setDate(cutoff.getDate() - 30);
+                filtered = filtered.filter(p => new Date(p.created_at) >= cutoff);
+            }
+
+            // Status
+            if (status !== 'all') {
+                filtered = filtered.filter(p => p.status === status);
+            }
+
+            // Category
+            if (category) {
+                filtered = filtered.filter(p => p.category === category);
+            }
+
+            // Store
+            if (store) {
+                filtered = filtered.filter(p => p.store === store);
+            }
+
+            // Expiry
+            if (expiry !== 'all') {
+                filtered = filtered.filter(p => {
+                    const days = p.days_until_expiration;
+                    if (expiry === 'expired') return days < 0;
+                    if (expiry === 'critical') return days >= 0 && days <= 3;
+                    if (expiry === 'warning') return days >= 0 && days <= 7;
+                    if (expiry === 'ok') return days > 7;
+                    return true;
+                });
+            }
+
+            // Price
+            if (price !== 'all') {
+                filtered = filtered.filter(p => {
+                    const pr = p.price || 0;
+                    if (price === '0-2') return pr >= 0 && pr <= 2;
+                    if (price === '2-5') return pr > 2 && pr <= 5;
+                    if (price === '5-10') return pr > 5 && pr <= 10;
+                    if (price === '10+') return pr > 10;
+                    return true;
+                });
+            }
+
+            // Opened
+            if (opened !== 'all') {
+                filtered = filtered.filter(p => {
+                    if (opened === 'opened') return p.is_opened;
+                    if (opened === 'closed') return !p.is_opened;
+                    return true;
+                });
+            }
+
+            // Search
+            if (search) {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+            }
+
+            filteredProducts = filtered;
+            renderTables(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterPeriod').value = 'current';
+            document.getElementById('filterStatus').value = 'all';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterStore').value = '';
+            document.getElementById('filterExpiry').value = 'all';
+            document.getElementById('filterPrice').value = 'all';
+            document.getElementById('filterOpened').value = 'all';
+            document.getElementById('filterSearch').value = '';
+            applyFilters();
+        }
+
+        function renderTables(products) {
+            const byLocation = {
+                pantry: products.filter(p => p.location === 'pantry'),
+                fridge: products.filter(p => p.location === 'fridge'),
+                freezer: products.filter(p => p.location === 'freezer')
+            };
+
+            renderTable('pantry', byLocation.pantry);
+            renderTable('fridge', byLocation.fridge);
+            renderTable('freezer', byLocation.freezer);
+        }
+
+        function renderTable(location, products) {
+            const tbody = document.getElementById(`${location}TableBody`);
+            const count = document.getElementById(`${location}Count`);
+
+            count.textContent = `${products.length} productos`;
+
+            if (products.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="empty-icon">📭</div>
+                                <p>Sin productos</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                updateChart(location, []);
+                return;
+            }
+
+            tbody.innerHTML = products.map(p => `
+                <tr id="row-${p.id}" class="${selectedProducts.includes(p.id) ? 'selected' : ''}">
+                    <td><input type="checkbox" onchange="toggleSelect(${p.id})" ${selectedProducts.includes(p.id) ? 'checked' : ''}></td>
+                    <td class="product-name">${p.name}</td>
+                    <td><span class="editable-cell" onclick="editField(${p.id}, 'quantity', ${p.quantity})">${p.quantity} ${p.unit}</span></td>
+                    <td><span class="editable-cell" onclick="editField(${p.id}, 'price', ${p.price || 0})">€${(p.price || 0).toFixed(2)}</span></td>
+                    <td><span class="editable-cell" onclick="editField(${p.id}, 'expiration_date', '${p.expiration_date}')">${formatDate(p.expiration_date)}</span></td>
+                    <td>${getDaysBadge(p.days_until_expiration)}</td>
+                    <td>${getStatusBadge(p.status)}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <div class="action-icon consumed" onclick="markAsConsumed(${p.id})" title="Consumido">✓</div>
+                            <div class="action-icon expired" onclick="markAsExpired(${p.id})" title="Caducado">✗</div>
+                            <div class="action-icon move" onclick="openMoveModal(${p.id})" title="Mover">→</div>
+                            <div class="action-icon delete" onclick="deleteProduct(${p.id})" title="Eliminar">🗑️</div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            updateChart(location, products);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+        }
+
+        function getDaysBadge(days) {
+            if (days < 0) return '<span class="badge critical">Caducado</span>';
+            if (days <= 3) return `<span class="badge critical">${days}d</span>`;
+            if (days <= 7) return `<span class="badge warning">${days}d</span>`;
+            return `<span class="badge ok">${days}d</span>`;
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'active': '<span class="badge active">Activo</span>',
+                'consumed': '<span class="badge consumed">Consumido</span>',
+                'wasted': '<span class="badge wasted">Caducado</span>'
+            };
+            return badges[status] || status;
+        }
+
+        function updateChart(location, products) {
+            const canvas = document.getElementById(`${location}Chart`);
+            if (!canvas) return;
+
+            if (charts[location]) {
+                charts[location].destroy();
+            }
+
+            const mode = chartModes[location];
+            const categoryCounts = {};
+
+            products.forEach(p => {
+                if (mode === 'items') {
+                    categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+                } else {
+                    categoryCounts[p.category] = (categoryCounts[p.category] || 0) + (p.price || 0);
+                }
+            });
+
+            const labels = Object.keys(categoryCounts).map(cat => categoryNames[cat] || cat);
+            const data = Object.values(categoryCounts);
+            const colors = ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
+
+            charts[location] = new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, padding: 8, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    if (mode === 'items') {
+                                        return `${label}: ${value} items`;
+                                    } else {
+                                        return `${label}: €${value.toFixed(2)}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleChartMode(location, mode) {
+            chartModes[location] = mode;
+            
+            document.getElementById(`${location}ToggleItems`).classList.toggle('active', mode === 'items');
+            document.getElementById(`${location}ToggleValue`).classList.toggle('active', mode === 'value');
+            
+            const products = filteredProducts.filter(p => p.location === location);
+            updateChart(location, products);
+        }
+
+        function sortTable(location, field) {
+            const currentSort = sortStates[location][field] || 'none';
+            
+            // Reset all sort states for this location
+            sortStates[location] = {};
+            
+            // Set new sort state
+            if (currentSort === 'none') {
+                sortStates[location][field] = 'asc';
+            } else if (currentSort === 'asc') {
+                sortStates[location][field] = 'desc';
+            } else {
+                sortStates[location][field] = 'none';
+            }
+
+            const products = filteredProducts.filter(p => p.location === location);
+            
+            if (sortStates[location][field] !== 'none') {
+                products.sort((a, b) => {
+                    let valA = a[field];
+                    let valB = b[field];
+
+                    if (field === 'expiration_date') {
+                        valA = new Date(valA);
+                        valB = new Date(valB);
+                    }
+
+                    if (sortStates[location][field] === 'asc') {
+                        return valA > valB ? 1 : -1;
+                    } else {
+                        return valA < valB ? 1 : -1;
+                    }
+                });
+            }
+
+            renderTable(location, products);
+            updateSortIcons(location, field);
+        }
+
+        function updateSortIcons(location, field) {
+            // Remove all sort classes
+            document.querySelectorAll(`#${location}TableBody`).forEach(table => {
+                table.closest('.table-wrapper').querySelectorAll('th.sortable').forEach(th => {
+                    th.classList.remove('sorted-asc', 'sorted-desc');
+                });
+            });
+
+            // Add appropriate class
+            const state = sortStates[location][field];
+            if (state === 'asc') {
+                event.target.classList.add('sorted-asc');
+            } else if (state === 'desc') {
+                event.target.classList.add('sorted-desc');
+            }
+        }
+
+        // Editing
+        async function editField(productId, field, currentValue) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            let newValue;
+            if (field === 'expiration_date') {
+                newValue = prompt(`Nueva fecha (YYYY-MM-DD):`, currentValue.split('T')[0]);
+                if (newValue) newValue = newValue + 'T00:00:00';
+            } else if (field === 'price') {
+                newValue = prompt(`Nuevo precio (€):`, currentValue);
+                newValue = parseFloat(newValue);
+            } else if (field === 'quantity') {
+                newValue = prompt(`Nueva cantidad:`, currentValue);
+                newValue = parseFloat(newValue);
+            }
+
+            if (newValue === null || newValue === '') return;
+
+            await saveField(productId, field, newValue);
+        }
+
+        async function saveField(productId, field, value) {
+            showSaving();
+
+            try {
+                const updateData = {};
+                updateData[field] = value;
+
+                const response = await fetch(`${API_URL}/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) throw new Error('Error al guardar');
+
+                const updatedProduct = await response.json();
+                
+                const index = allProducts.findIndex(p => p.id === productId);
+                if (index > -1) {
+                    allProducts[index] = updatedProduct;
+                }
+
+                applyFilters();
+                hideSaving();
+
+            } catch (error) {
+                console.error('Error:', error);
+                hideSaving();
+                alert('Error al guardar');
+            }
+        }
+
+        async function markAsConsumed(productId) {
+            await saveField(productId, 'status', 'consumed');
+        }
+
+        async function markAsExpired(productId) {
+            await saveField(productId, 'status', 'wasted');
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('¿Eliminar este producto?')) return;
+
+            showSaving();
+
+            try {
+                const response = await fetch(`${API_URL}/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) throw new Error('Error al eliminar');
+
+                allProducts = allProducts.filter(p => p.id !== productId);
+                selectedProducts = selectedProducts.filter(id => id !== productId);
+
+                applyFilters();
+                hideSaving();
+
+            } catch (error) {
+                console.error('Error:', error);
+                hideSaving();
+                alert('Error al eliminar');
+            }
+        }
+
+        // Selection
+        function toggleSelect(productId) {
+            const index = selectedProducts.indexOf(productId);
+            if (index > -1) {
+                selectedProducts.splice(index, 1);
+            } else {
+                selectedProducts.push(productId);
+            }
+            
+            updateBulkActions();
+            updateRowSelection(productId);
+        }
+
+        function toggleSelectAll(location, checkbox) {
+            const products = filteredProducts.filter(p => p.location === location);
+
+            if (checkbox.checked) {
+                products.forEach(p => {
+                    if (!selectedProducts.includes(p.id)) {
+                        selectedProducts.push(p.id);
+                    }
+                });
+            } else {
+                products.forEach(p => {
+                    const index = selectedProducts.indexOf(p.id);
+                    if (index > -1) {
+                        selectedProducts.splice(index, 1);
+                    }
+                });
+            }
+
+            updateBulkActions();
+            applyFilters();
+        }
+
+        function updateRowSelection(productId) {
+            const row = document.getElementById(`row-${productId}`);
+            if (row) {
+                if (selectedProducts.includes(productId)) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
+            }
+        }
+
+        function updateBulkActions() {
+            const bulkBar = document.getElementById('bulkActions');
+            const count = document.getElementById('bulkCount');
+            
+            count.textContent = selectedProducts.length;
+            
+            if (selectedProducts.length > 0) {
+                bulkBar.classList.add('active');
+            } else {
+                bulkBar.classList.remove('active');
+            }
+        }
+
+        function clearSelection() {
+            selectedProducts = [];
+            updateBulkActions();
+            applyFilters();
+        }
+
+        // Bulk actions
+        async function bulkMarkConsumed() {
+            if (!confirm(`¿Marcar ${selectedProducts.length} productos como consumidos?`)) return;
+
+            for (const productId of selectedProducts) {
+                await saveField(productId, 'status', 'consumed');
+            }
+
+            selectedProducts = [];
+            updateBulkActions();
+        }
+
+        async function bulkMarkExpired() {
+            if (!confirm(`¿Marcar ${selectedProducts.length} productos como caducados?`)) return;
+
+            for (const productId of selectedProducts) {
+                await saveField(productId, 'status', 'wasted');
+            }
+
+            selectedProducts = [];
+            updateBulkActions();
+        }
+
+        function bulkMove() {
+            bulkMoveTargets = [...selectedProducts];
+            document.getElementById('moveModal').classList.add('active');
+        }
+
+        function openMoveModal(productId) {
+            bulkMoveTargets = [productId];
+            document.getElementById('moveModal').classList.add('active');
+        }
+
+        function closeMoveModal() {
+            document.getElementById('moveModal').classList.remove('active');
+            bulkMoveTargets = [];
+        }
+
+        async function confirmMove() {
+            const newLocation = document.getElementById('newLocation').value;
+            if (!newLocation) return;
+
+            showSaving();
+
+            try {
+                for (const productId of bulkMoveTargets) {
+                    await saveField(productId, 'location', newLocation);
+                }
+
+                closeMoveModal();
+                selectedProducts = [];
+                updateBulkActions();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al mover productos');
+            }
+
+            hideSaving();
+        }
+
+        // Helpers
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        function showSaving() {
+            document.getElementById('savingIndicator').classList.add('active');
+        }
+
+        function hideSaving() {
+            setTimeout(() => {
+                document.getElementById('savingIndicator').classList.remove('active');
+            }, 500);
+        }
+
+        function logout() {
+            if (confirm('¿Cerrar sesión?')) {
+                localStorage.removeItem('freshkeep_token');
+                localStorage.removeItem('freshkeep_user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        document.getElementById('moveModal').addEventListener('click', (e) => {
+            if (e.target.id === 'moveModal') closeMoveModal();
+        });
+    </script>
+</body>
+</html>
