@@ -16,11 +16,11 @@ anthropic==0.42.0
 gunicorn==21.2.0
 email-validator==2.1.0
 bcrypt==4.1.2
-# OCR y procesamiento de imágenes (TODO CON PIP)
+# OCR y procesamiento de imágenes
 easyocr==1.7.2
 opencv-python-headless==4.10.0.84
 Pillow==11.0.0
 fuzzywuzzy==0.18.0
 python-Levenshtein==0.26.1
-torch==2.5.1
-torchvision==0.20.1
+torch==2.5.1 --extra-index-url https://download.pytorch.org/whl/cpu
+torchvision==0.20.1 --extra-index-url https://download.pytorch.org/whl/cpu
