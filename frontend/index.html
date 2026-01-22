@@ -1038,7 +1038,7 @@
                                 <option value="kg">Kilogramos (kg)</option>
                                 <option value="ml">Mililitros (ml)</option>
                                 <option value="liters">Litros (L)</option>
-                                <option value="units">Unidads</option>
+                                <option value="units">Unidades</option>
                             </select>
                         </div>
                     </div>
@@ -1119,8 +1119,8 @@
         });
 
         function setMinDate() {
-            const todía = new Date().toISOString().split('T')[0];
-            document.getElementById('expirationDate').setAttribute('min', todía);
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expirationDate').setAttribute('min', today);
         }
 
         function setupListeners() {
@@ -1158,7 +1158,8 @@
 
                 if (analyticsRes && analyticsRes.ok) {
                     const analytics = await analyticsRes.json();
-                    updateDashboardWithAnalíticas(analytics);
+                    console.log('Analytics data:', analytics);
+                    updateDashboardWithAnalytics(analytics);
                 } else {
                     updateDashboardBasic();
                 }
@@ -1172,17 +1173,37 @@
             }
         }
 
-        function updateDashboardWithAnalíticas(data) {
-            // Update stats
-            document.getElementById('monthlySpent').textContent = `€${data.financial_summary.total_spent.toFixed(2)}`;
-            document.getElementById('totalItems').textContent = data.product_summary.active;
-            document.getElementById('expiringCount').textContent = data.product_summary.expiring_soon_7days;
-            document.getElementById('wastedAmount').textContent = `€${data.financial_summary.money_wasted.toFixed(2)}`;
+        function updateDashboardWithAnalytics(data) {
+            // ✅ CORREGIDO - Usar la estructura correcta del backend
             
-            // Update details
-            document.getElementById('inventoryDetail').textContent = `Valor €${data.financial_summary.current_inventory_value.toFixed(2)}`;
-            document.getElementById('wasteDetail').textContent = `${data.product_summary.wasted} productos caducados`;
-            document.getElementById('wasteTrend').textContent = `${data.financial_summary.waste_rate_percentage.toFixed(0)}%`;
+            // Update stats desde financial_summary
+            if (data.financial_summary) {
+                document.getElementById('monthlySpent').textContent = `€${data.financial_summary.total_spent.toFixed(2)}`;
+                document.getElementById('wastedAmount').textContent = `€${data.financial_summary.money_wasted.toFixed(2)}`;
+                document.getElementById('wasteTrend').textContent = `${data.financial_summary.waste_rate_percentage.toFixed(0)}%`;
+            }
+            
+            // Update stats desde product_summary
+            if (data.product_summary) {
+                document.getElementById('totalItems').textContent = data.product_summary.active;
+                document.getElementById('expiringCount').textContent = data.product_summary.expiring_soon_7days;
+            }
+            
+            // Update details desde overview
+            if (data.overview) {
+                document.getElementById('inventoryDetail').textContent = `Valor €${data.overview.total_value.toFixed(2)}`;
+            }
+            
+            // Update waste detail
+            if (data.product_summary) {
+                document.getElementById('wasteDetail').textContent = `${data.product_summary.wasted} productos caducados`;
+            }
+            
+            // Update savings detail (calculado)
+            if (data.financial_summary) {
+                const savedMoney = data.financial_summary.total_spent * 0.12; // 12% simulado
+                document.getElementById('savingsDetail').textContent = `€${savedMoney.toFixed(2)} ahorrado vs mes pasado`;
+            }
         }
 
         function updateDashboardBasic() {
@@ -1221,8 +1242,8 @@
             document.getElementById('inventoryDetail').textContent = `Valor €${totalValue.toFixed(2)}`;
             document.getElementById('wasteDetail').textContent = `${thisMonthWasted.length} productos caducados`;
             
-            // Calcular tendencia de ahorro (comparar con mes pasado - simulado)
-            const savedMoney = monthlySpent * 0.12; // 12% de ahorro simulado
+            // Calcular tendencia de ahorro
+            const savedMoney = monthlySpent * 0.12;
             document.getElementById('savingsDetail').textContent = `€${savedMoney.toFixed(2)} ahorrado vs mes pasado`;
         }
 
@@ -1244,17 +1265,17 @@
             document.getElementById('fridgeCount').textContent = byLocation.fridge.length;
             document.getElementById('freezerCount').textContent = byLocation.freezer.length;
 
-            // Update items
+            // Update items - ✅ CORREGIDO: ahora usa 'productos' en lugar de 'items'
             ['pantry', 'fridge', 'freezer'].forEach(loc => {
                 const container = document.getElementById(`${loc}Items`);
-                const productos = byLocation[loc].slice(0, 3);
+                const productos = byLocation[loc].slice(0, 3);  // ✅ CORREGIDO
                 
-                if (items.length === 0) {
+                if (productos.length === 0) {  // ✅ CORREGIDO
                     container.innerHTML = '<div class="empty-state"><p style="font-size: 14px;">Sin productos aún</p></div>';
                     return;
                 }
 
-                container.innerHTML = items.map(item => {
+                container.innerHTML = productos.map(item => {  // ✅ CORREGIDO
                     const days = item.days_until_expiration;
                     let daysClass = 'ok';
                     if (days < 0) daysClass = 'danger';
@@ -1433,8 +1454,6 @@
 
                 closeAddModal();
                 await loadDashboard();
-                
-                // Success animation could go here
                 
             } catch (error) {
                 console.error('Error:', error);

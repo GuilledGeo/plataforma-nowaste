@@ -1,5 +1,6 @@
 """
 Analytics Service - Lógica de negocio para análisis de datos del inventario
+VERSIÓN CORREGIDA - Compatible con index.html y dashboard.html
 """
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
@@ -19,11 +20,12 @@ class AnalyticsService:
     def get_dashboard_stats(self, user_id: int, days_back: int = 30) -> Dict:
         """
         Obtener estadísticas principales del dashboard
+        VERSIÓN CORREGIDA - Incluye financial_summary y product_summary
         """
         # Fecha de corte para el análisis
         cutoff_date = datetime.utcnow() - timedelta(days=days_back)
         
-        # 1. ESTADÍSTICAS GENERALES
+        # 1. ESTADÍSTICAS GENERALES (para overview)
         total_products = self.db.query(Product).filter(
             Product.user_id == user_id,
             Product.status == ProductStatus.ACTIVE
@@ -64,28 +66,70 @@ class AnalyticsService:
             Product.updated_at >= cutoff_date
         ).count()
         
-        # 2. DISTRIBUCIÓN POR CATEGORÍAS
+        # 2. PRODUCT SUMMARY (para index.html)
+        product_summary = {
+            "active": total_products,
+            "expiring_soon_7days": expiring_soon,
+            "expired": expired,
+            "consumed": consumed,
+            "wasted": wasted,
+            "total": self.db.query(Product).filter(Product.user_id == user_id).count()
+        }
+        
+        # 3. FINANCIAL SUMMARY (para index.html)
+        # Calcular gastos del periodo
+        products_in_period = self.db.query(Product).filter(
+            Product.user_id == user_id,
+            Product.created_at >= cutoff_date,
+            Product.price.isnot(None)
+        ).all()
+        
+        total_spent = sum(p.price or 0 for p in products_in_period)
+        
+        # Calcular dinero desperdiciado
+        wasted_products = self.db.query(Product).filter(
+            Product.user_id == user_id,
+            Product.status == ProductStatus.WASTED,
+            Product.updated_at >= cutoff_date,
+            Product.price.isnot(None)
+        ).all()
+        
+        money_wasted = sum(p.price or 0 for p in wasted_products)
+        
+        # Calcular tasa de desperdicio financiero
+        waste_rate_percentage = (money_wasted / total_spent * 100) if total_spent > 0 else 0
+        
+        financial_summary = {
+            "total_spent": round(total_spent, 2),
+            "money_wasted": round(money_wasted, 2),
+            "current_inventory_value": round(total_value, 2),
+            "waste_rate_percentage": round(waste_rate_percentage, 2),
+            "avg_daily_spending": round(total_spent / days_back, 2) if days_back > 0 else 0
+        }
+        
+        # 4. DISTRIBUCIÓN POR CATEGORÍAS
         category_distribution = self._get_category_distribution(user_id)
         
-        # 3. DISTRIBUCIÓN POR UBICACIONES
+        # 5. DISTRIBUCIÓN POR UBICACIONES
         location_distribution = self._get_location_distribution(user_id)
         
-        # 4. PRODUCTOS POR TIENDA
+        # 6. PRODUCTOS POR TIENDA
         store_distribution = self._get_store_distribution(user_id)
         
-        # 5. TENDENCIAS TEMPORALES (últimos 30 días)
+        # 7. TENDENCIAS TEMPORALES
         daily_trends = self._get_daily_trends(user_id, days_back)
         
-        # 6. TOP PRODUCTOS PRÓXIMOS A CADUCAR
+        # 8. TOP PRODUCTOS PRÓXIMOS A CADUCAR
         expiring_products = self._get_expiring_products(user_id, 7)
         
-        # 7. MÉTRICAS DE DESPERDICIO
+        # 9. MÉTRICAS DE DESPERDICIO
         waste_metrics = self._get_waste_metrics(user_id, days_back)
         
-        # 8. ANÁLISIS DE PRECIOS
+        # 10. ANÁLISIS DE PRECIOS
         price_analysis = self._get_price_analysis(user_id)
         
         return {
+            # Para ambos frontends
             "overview": {
                 "total_products": total_products,
                 "total_value": round(total_value, 2),
@@ -95,6 +139,10 @@ class AnalyticsService:
                 "wasted_last_30d": wasted,
                 "waste_rate": round((wasted / (consumed + wasted) * 100) if (consumed + wasted) > 0 else 0, 2)
             },
+            # NUEVOS: Para index.html
+            "product_summary": product_summary,
+            "financial_summary": financial_summary,
+            # Para dashboard.html
             "category_distribution": category_distribution,
             "location_distribution": location_distribution,
             "store_distribution": store_distribution,
@@ -149,7 +197,7 @@ class AnalyticsService:
         ]
     
     def _get_store_distribution(self, user_id: int) -> List[Dict]:
-        """Distribución de productos por tienda"""
+        """Distribución de productos por tienda - CORREGIDO"""
         results = self.db.query(
             Product.store,
             func.count(Product.id).label('count'),
@@ -163,7 +211,8 @@ class AnalyticsService:
         return [
             {
                 "store": row.store,
-                "count": row.count,
+                "product_count": row.count,  # ✅ AGREGADO: para dashboard.html
+                "count": row.count,           # ✅ Mantenido por compatibilidad
                 "total_spent": round(row.total_spent or 0, 2)
             }
             for row in results
@@ -258,19 +307,26 @@ class AnalyticsService:
             reverse=True
         )[:5]
         
+        # Total de productos en el periodo
+        total_products = self.db.query(Product).filter(
+            Product.user_id == user_id,
+            or_(
+                Product.status == ProductStatus.CONSUMED,
+                Product.status == ProductStatus.WASTED
+            ),
+            Product.updated_at >= cutoff_date
+        ).count()
+        
         return {
             "total_wasted": total_wasted,
             "total_value_wasted": round(total_value_wasted, 2),
             "top_wasted_categories": top_wasted_categories,
-            "waste_percentage": round((total_wasted / (total_wasted + self.db.query(Product).filter(
-                Product.user_id == user_id,
-                Product.status == ProductStatus.CONSUMED,
-                Product.updated_at >= cutoff_date
-            ).count() or 1) * 100), 2)
+            "waste_percentage": round((total_wasted / total_products * 100) if total_products > 0 else 0, 2),
+            "total_products": total_products  # ✅ AGREGADO
         }
     
     def _get_price_analysis(self, user_id: int) -> Dict:
-        """Análisis de precios"""
+        """Análisis de precios - CORREGIDO"""
         products_with_price = self.db.query(Product).filter(
             Product.user_id == user_id,
             Product.status == ProductStatus.ACTIVE,
@@ -297,14 +353,15 @@ class AnalyticsService:
         
         for p in products_with_price:
             cat = str(p.category.value)
-            price_by_category[cat] = price_by_category.get(cat, 0) + p.price
+            price_by_category[cat] = price_by_category.get(cat, 0) + (p.price * p.quantity)
             count_by_category[cat] = count_by_category.get(cat, 0) + 1
         
         price_per_category = [
             {
                 "category": cat,
                 "average_price": round(price_by_category[cat] / count_by_category[cat], 2),
-                "total_value": round(price_by_category[cat], 2)
+                "total_value": round(price_by_category[cat], 2),
+                "product_count": count_by_category[cat]  # ✅ AGREGADO: para dashboard.html
             }
             for cat in price_by_category
         ]
