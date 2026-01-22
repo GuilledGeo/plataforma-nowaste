@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
+from app.api import ticket_scan
+
 
 # Crear todas las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -33,6 +35,7 @@ app.include_router(products.router, prefix="/api/products", tags=["products"])
 app.include_router(recipes.router, prefix="/api/recipes", tags=["recipes"])
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
+app.include_router(ticket_scan.router, prefix="/api/tickets", tags=["ticket-scan"])
 
 
 @app.get("/")

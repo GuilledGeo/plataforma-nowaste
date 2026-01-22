@@ -31,3 +31,12 @@ pytest-asyncio==0.25.2
 
 email-validator==2.1.0
 bcrypt==4.1.2
+
+# OCR y procesamiento de imágenes (TODO CON PIP)
+easyocr==1.7.0
+opencv-python==4.8.1.78
+Pillow==10.2.0
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.25.0
+torch==2.1.0  # Requerido por EasyOCR
+torchvision==0.16.0
