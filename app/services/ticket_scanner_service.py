@@ -25,12 +25,11 @@ class TicketScannerService:
     def __init__(self):
         self.reader = None
     
+    # En tu archivo TicketScannerService
     def _get_reader(self):
-        """Lazy loading del reader"""
         if self.reader is None:
-            print("🔄 Inicializando EasyOCR (solo primera vez)...")
+            # gpu=False es crítico en Render
             self.reader = easyocr.Reader(['es', 'en'], gpu=False)
-            print("✅ EasyOCR listo")
         return self.reader
     
     def extract_text_from_image(self, image_path: str) -> str:
