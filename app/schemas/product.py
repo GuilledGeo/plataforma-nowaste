@@ -116,6 +116,7 @@ class ProductList(BaseModel):
     unit: str
     price: Optional[float]  # NUEVO
     is_opened: Optional[bool]  # NUEVO
+    location: ProductLocation
     status: ProductStatus
     days_until_expiration: Optional[int] = None
     

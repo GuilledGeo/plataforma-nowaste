@@ -1138,14 +1138,10 @@
 
         async function loadDashboard() {
             try {
-                const [productsRes, analyticsRes] = await Promise.all([
-                    fetch(`${API_URL}/products/`, {
-                        headers: { 'Authorization': `Bearer ${authToken}` }
-                    }),
-                    fetch(`${API_URL}/analytics/dashboard?days_back=30`, {
-                        headers: { 'Authorization': `Bearer ${authToken}` }
-                    }).catch(() => null)
-                ]);
+                // ✅ PRIMERO: Cargar productos
+                const productsRes = await fetch(`${API_URL}/products/`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
 
                 if (productsRes.status === 401) {
                     localStorage.removeItem('freshkeep_token');
@@ -1154,22 +1150,34 @@
                     return;
                 }
 
+                // ✅ IMPORTANTE: Asignar a allProducts
                 allProducts = await productsRes.json();
+                console.log('✅ Productos cargados:', allProducts.length);
 
-                if (analyticsRes && analyticsRes.ok) {
-                    const analytics = await analyticsRes.json();
-                    console.log('Analytics data:', analytics);
-                    updateDashboardWithAnalytics(analytics);
-                } else {
+                // ✅ SEGUNDO: Cargar analytics (opcional)
+                try {
+                    const analyticsRes = await fetch(`${API_URL}/analytics/dashboard?days_back=30`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (analyticsRes.ok) {
+                        const analytics = await analyticsRes.json();
+                        updateDashboardWithAnalytics(analytics);
+                    } else {
+                        updateDashboardBasic();
+                    }
+                } catch (error) {
+                    console.log('⚠️ Analytics no disponible, usando básico');
                     updateDashboardBasic();
                 }
 
+                // ✅ TERCERO: Actualizar ubicaciones (DESPUÉS de cargar productos)
                 updateLocations();
                 updateAlerts();
                 updateRecentActivity();
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Error:', error);
             }
         }
 
