@@ -20,28 +20,43 @@ from app.utils.product_database import (
 
 
 class TicketScannerService:
-    """Servicio para escanear tickets - Parser definitivo corregido"""
-    
     def __init__(self):
         self.reader = None
-    
-    # En tu archivo TicketScannerService
+
     def _get_reader(self):
+        """Inicialización ultra-ligera de EasyOCR"""
         if self.reader is None:
-            # gpu=False es crítico en Render
-            self.reader = easyocr.Reader(['es', 'en'], gpu=False)
+            print("🔄 [MEMORIA] Inicializando EasyOCR en modo ahorro...")
+            # 1. Cargamos SOLO español para ahorrar 150MB+ de modelos ingleses
+            # 2. model_storage_directory: Usamos /tmp para que no colapse el disco persistente
+            # 3. download_enabled: Forzamos la descarga solo si es necesario
+            self.reader = easyocr.Reader(
+                ['es'], 
+                gpu=False, 
+                model_storage_directory='/tmp/model_cache',
+                download_enabled=True,
+                recog_network='standard' # Usamos el modelo estándar, evita modelos 'heavy'
+            )
+            print("✅ [MEMORIA] EasyOCR cargado con éxito")
         return self.reader
-    
+
     def extract_text_from_image(self, image_path: str) -> str:
-        """Extraer texto con EasyOCR"""
+        """Extracción con limpieza de memoria post-proceso"""
         try:
             reader = self._get_reader()
-            result = reader.readtext(image_path)
-            text_lines = [detection[1] for detection in result]
-            text = '\n'.join(text_lines)
-            print(f"✅ Texto extraído ({len(text_lines)} líneas)")
+            # detail=0 devuelve solo texto, ahorrando memoria de coordenadas
+            result = reader.readtext(image_path, detail=0)
+            text = '\n'.join(result)
+            
+            print(f"✅ Texto extraído ({len(result)} bloques)")
+            
+            # LIBERACIÓN DE MEMORIA MANUAL (Vital en Render 512MB)
+            # Después de procesar, forzamos al recolector de basura
+            gc.collect() 
+            
             return text
         except Exception as e:
+            print(f"❌ Error en OCR: {str(e)}")
             raise Exception(f"Error en OCR: {str(e)}")
     
     def extract_store_name(self, text: str) -> str:
