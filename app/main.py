@@ -6,8 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
 from app.api import ticket_scan
-from app.api import menu  # Añadir esta línea
+from app.api import menu
 
+# Importar routers
+from app.api import products, recipes, auth, analytics
 
 # Crear todas las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -20,24 +22,26 @@ app = FastAPI(
     debug=settings.DEBUG,
 )
 
-# Configurar CORS - Permitir todos los orígenes en desarrollo
-# ✅ Configuración correcta
+# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,  # Lista específica
-    allow_credentials=True,  # Necesario para JWT
+    allow_origins=[
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        "https://nowasteapp.netlify.app",  # ✅ Tu frontend en Netlify
+        *settings.ALLOWED_ORIGINS,  # Mantener los orígenes del settings si existen
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Importar routers
-from app.api import products, recipes, auth, analytics
-
+# Registrar routers
+app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(products.router, prefix="/api/products", tags=["products"])
 app.include_router(recipes.router, prefix="/api/recipes", tags=["recipes"])
-app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
-app.include_router(menu.router, prefix="/api/menu", tags=["menu"])  # NUEVO
+app.include_router(menu.router, prefix="/api/menu", tags=["menu"])
 app.include_router(ticket_scan.router, prefix="/api/tickets", tags=["ticket-scan"])
 
 
