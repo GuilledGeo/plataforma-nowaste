@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
 from app.api import ticket_scan
+from app.routers import menu  # Añadir esta línea
 
 
 # Crear todas las tablas en la base de datos
