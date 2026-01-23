@@ -15,4 +15,6 @@ __all__ = [
     "Recipe",
     "Notification",
     "NotificationType",
+    "WeeklyMenu",  # NUEVA
+    "ShoppingList",  # NUEVA
 ]
