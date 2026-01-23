@@ -1,5 +1,5 @@
 """
-Configuración de la aplicación FreshKeep
+Configuración de la aplicación FreshKeep - CORS CORREGIDO
 """
 import os
 from pydantic_settings import BaseSettings
@@ -33,16 +33,24 @@ class Settings(BaseSettings):
     # API Keys
     ANTHROPIC_API_KEY: Optional[str] = os.getenv("ANTHROPIC_API_KEY")
     
-    # CORS - CONFIGURACIÓN CORREGIDA ✅
-    ALLOWED_ORIGINS: list = [
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:8000",
-        "https://nowasteapp.netlify.app",  # ✅ Tu dominio de Netlify
-        "https://plataforma-nowaste.onrender.com",  # ✅ Tu backend
-        # Añade más dominios específicos aquí si despliegas en otros lugares
-    ]
+    # 🔥 CORS - SOLUCIÓN AL PROBLEMA
+    @property
+    def allowed_origins(self) -> list:
+        """
+        Devuelve lista de orígenes permitidos.
+        En desarrollo permite todo (*), en producción solo dominios específicos.
+        """
+        # Si estamos en desarrollo local
+        if self.DEBUG:
+            return ["*"]
+        
+        # En producción, lista exacta de dominios
+        return [
+            "http://localhost:3000",
+            "http://localhost:8000",
+            "https://nowasteapp.netlify.app",  # ✅ TU FRONTEND EN NETLIFY
+            "https://plataforma-nowaste.onrender.com",  # ✅ TU BACKEND
+        ]
     
     class Config:
         env_file = ".env"

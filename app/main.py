@@ -1,15 +1,11 @@
 """
 Main - Entry Point de la aplicación FreshKeep
+CORS CORREGIDO PARA FUNCIONAR CON NETLIFY
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
-from app.api import ticket_scan
-from app.api import menu
-
-# Importar routers
-from app.api import products, recipes, auth, analytics
 
 # Crear todas las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -22,27 +18,23 @@ app = FastAPI(
     debug=settings.DEBUG,
 )
 
-# Configurar CORS
+# 🔥 CONFIGURAR CORS CORRECTAMENTE
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5500",
-        "http://127.0.0.1:5500",
-        "https://nowasteapp.netlify.app",  # ✅ Tu frontend en Netlify
-        *settings.ALLOWED_ORIGINS,  # Mantener los orígenes del settings si existen
-    ],
+    allow_origins=settings.allowed_origins,  # Usa la propiedad que creamos
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Permite GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],  # Permite todos los headers
+    expose_headers=["*"],  # Expone todos los headers en la respuesta
 )
 
-# Registrar routers
-app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
+# Importar routers
+from app.api import products, recipes, auth, analytics
+
 app.include_router(products.router, prefix="/api/products", tags=["products"])
 app.include_router(recipes.router, prefix="/api/recipes", tags=["recipes"])
+app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
-app.include_router(menu.router, prefix="/api/menu", tags=["menu"])
-app.include_router(ticket_scan.router, prefix="/api/tickets", tags=["ticket-scan"])
 
 
 @app.get("/")
@@ -51,7 +43,8 @@ def root():
     return {
         "message": f"Bienvenido a {settings.APP_NAME} API",
         "version": settings.VERSION,
-        "status": "running"
+        "status": "running",
+        "cors_origins": settings.allowed_origins  # Para debug
     }
 
 
@@ -59,6 +52,17 @@ def root():
 def health_check():
     """Health check"""
     return {"status": "healthy"}
+
+
+# 🔥 ENDPOINT DE DEBUG PARA VER CONFIGURACIÓN CORS
+@app.get("/debug/cors")
+def debug_cors():
+    """Ver configuración de CORS (solo para debug)"""
+    return {
+        "allowed_origins": settings.allowed_origins,
+        "debug_mode": settings.DEBUG,
+        "database_url": settings.database_url_fixed.split("@")[0] + "@***"  # Ocultar password
+    }
 
 
 if __name__ == "__main__":
